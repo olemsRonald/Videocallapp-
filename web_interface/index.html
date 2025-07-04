@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OODA - Audio Call System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="page active">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-headphones"></i>
+                <h1>OODA Audio Call</h1>
+            </div>
+            <div class="status-bar">
+                <div class="status-item">
+                    <i class="fas fa-microphone" id="mic-status"></i>
+                    <span id="my-status">Online</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-wifi" id="network-status"></i>
+                    <span id="network-info">Connected</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="welcome-section">
+                <h2>Welcome to OODA Audio Call System</h2>
+                <p>Local network audio calling made simple</p>
+            </div>
+
+            <div class="action-grid">
+                <div class="action-card" onclick="showPage('discovery')">
+                    <i class="fas fa-search"></i>
+                    <h3>Discover Peers</h3>
+                    <p>Find available devices on your network</p>
+                </div>
+
+                <div class="action-card" onclick="startListening()">
+                    <i class="fas fa-phone"></i>
+                    <h3>Listen for Calls</h3>
+                    <p>Wait for incoming calls from other devices</p>
+                </div>
+
+                <div class="action-card" onclick="showPage('settings')">
+                    <i class="fas fa-cog"></i>
+                    <h3>Settings</h3>
+                    <p>Configure audio and network settings</p>
+                </div>
+            </div>
+
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Local IP:</span>
+                    <span class="stat-value" id="local-ip">Detecting...</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Port:</span>
+                    <span class="stat-value">5000</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Status:</span>
+                    <span class="stat-value" id="app-status">Ready</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Peer Discovery Page -->
+    <div id="discovery" class="page">
+        <header class="header">
+            <button class="back-btn" onclick="showPage('dashboard')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1>Discover Peers</h1>
+            <button class="refresh-btn" onclick="refreshPeers()">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </header>
+
+        <main class="main-content">
+            <div class="discovery-controls">
+                <button class="btn btn-primary" onclick="discoverPeers()">
+                    <i class="fas fa-search"></i>
+                    Start Discovery
+                </button>
+                <div class="discovery-status">
+                    <span id="discovery-status">Ready to discover</span>
+                </div>
+            </div>
+
+            <div class="peers-container">
+                <h3>Available Peers</h3>
+                <div id="peers-list" class="peers-list">
+                    <div class="no-peers">
+                        <i class="fas fa-search"></i>
+                        <p>No peers found. Click "Start Discovery" to search for devices.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Active Call Page -->
+    <div id="call" class="page">
+        <header class="header">
+            <h1>Active Call</h1>
+            <div class="call-timer">
+                <span id="call-duration">00:00</span>
+            </div>
+        </header>
+
+        <main class="main-content call-interface">
+            <div class="call-info">
+                <div class="peer-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h2 id="peer-name">Unknown Device</h2>
+                <p id="peer-ip">192.168.1.100</p>
+                <div class="call-status">
+                    <span id="call-status">Connected</span>
+                </div>
+            </div>
+
+            <div class="call-controls">
+                <button class="control-btn mute-btn" onclick="toggleMute()">
+                    <i class="fas fa-microphone" id="mute-icon"></i>
+                </button>
+                
+                <button class="control-btn volume-btn" onclick="toggleVolumePanel()">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                
+                <button class="control-btn end-call-btn" onclick="endCall()">
+                    <i class="fas fa-phone-slash"></i>
+                </button>
+            </div>
+
+            <div class="volume-panel" id="volume-panel">
+                <label for="volume-slider">Volume</label>
+                <input type="range" id="volume-slider" min="0" max="100" value="50">
+                <span id="volume-value">50%</span>
+            </div>
+
+            <div class="call-quality">
+                <h4>Call Quality</h4>
+                <div class="quality-metrics">
+                    <div class="metric">
+                        <span>Latency:</span>
+                        <span id="latency">-- ms</span>
+                    </div>
+                    <div class="metric">
+                        <span>Packets:</span>
+                        <span id="packets">-- / --</span>
+                    </div>
+                    <div class="metric">
+                        <span>Quality:</span>
+                        <span id="quality" class="quality-good">Good</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="settings" class="page">
+        <header class="header">
+            <button class="back-btn" onclick="showPage('dashboard')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1>Settings</h1>
+        </header>
+
+        <main class="main-content">
+            <div class="settings-section">
+                <h3><i class="fas fa-microphone"></i> Audio Settings</h3>
+                
+                <div class="setting-item">
+                    <label for="mic-device">Microphone Device:</label>
+                    <select id="mic-device">
+                        <option>Default Microphone</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label for="speaker-device">Speaker Device:</label>
+                    <select id="speaker-device">
+                        <option>Default Speaker</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label for="audio-quality">Audio Quality:</label>
+                    <select id="audio-quality">
+                        <option value="high">High (44.1kHz)</option>
+                        <option value="medium" selected>Medium (22kHz)</option>
+                        <option value="low">Low (11kHz)</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label for="mic-gain">Microphone Gain:</label>
+                    <input type="range" id="mic-gain" min="0" max="100" value="50">
+                    <span id="mic-gain-value">50%</span>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3><i class="fas fa-network-wired"></i> Network Settings</h3>
+                
+                <div class="setting-item">
+                    <label for="listen-port">Listen Port:</label>
+                    <input type="number" id="listen-port" value="5000" min="1024" max="65535">
+                </div>
+
+                <div class="setting-item">
+                    <label for="discovery-port">Discovery Port:</label>
+                    <input type="number" id="discovery-port" value="5001" min="1024" max="65535">
+                </div>
+
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="auto-accept" checked>
+                        Auto-accept incoming calls
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-actions">
+                <button class="btn btn-primary" onclick="saveSettings()">
+                    <i class="fas fa-save"></i>
+                    Save Settings
+                </button>
+                <button class="btn btn-secondary" onclick="testAudio()">
+                    <i class="fas fa-play"></i>
+                    Test Audio
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">
+        <div class="toast-content">
+            <i class="toast-icon"></i>
+            <span class="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Connecting...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
